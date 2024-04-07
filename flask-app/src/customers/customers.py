@@ -13,7 +13,7 @@ customers = Blueprint('customers', __name__)
 @customers.route('/customers', methods=['GET'])
 def get_customers():
     cursor = db.get_db().cursor()
-    cursor.execute('select company, last_name,\
+    cursor.execute('select id, company, last_name,\
         first_name, job_title, business_phone from customers')
     row_headers = [x[0] for x in cursor.description]
     json_data = []
@@ -39,3 +39,20 @@ def get_customer(userID):
     the_response.status_code = 200
     the_response.mimetype = 'application/json'
     return the_response
+
+#update customer information given their ID number
+@customers.route('/customers/<userId>', methods=['PUT'])
+def update_customer_information(userId):
+    if userId not in customers:
+        return jsonify({'error': 'customer not found'}), 404
+    
+    data = request.json
+    customers[userId].update(data)
+
+    #customers[userId]['company'] = data.get('company', customers[userId]['company'])
+    #customers[userId]['last_name'] = data.get('last_name', customers[userId]['last_name'])
+    #customers[userId]['first_name'] = data.get('first_name', customers[userId]['first_name'])
+    #customers[userId]['job_title'] = data.get('job_title', customers[userId]['job_title'])
+    #customers[userId]['business_phone'] = data.get('business_phone', customers[userId]['business_phone'])
+    
+    return jsonify(customers[userId])
